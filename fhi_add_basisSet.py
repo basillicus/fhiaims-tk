@@ -1,5 +1,10 @@
 #!python
 
+"""Adds/substitutes the required or requested basis set to the control.in file. For help:
+
+    fhi_add_basisSet.py -h
+"""
+
 import argparse
 import os
 import sys

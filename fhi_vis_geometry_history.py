@@ -5,8 +5,24 @@ Parse an aims.out file and extract the geoemtries and forces of a geometry optim
 Returns an .extxyz file
 """
 
-outfile = 'geom_optim_history.extxyz'
-init_geom = 'aims.out'
+import argparse
+from config import fhi_aims_outputfile, visualization_outputfile
+
+parser = argparse.ArgumentParser(
+    prog='fhi_vis_geometry_history.py',
+    description='Extracts the history of a geometry optimization or Molecular Dynamcis from an aims ouptput (aims.out) file ',
+)
+
+inputfile = fhi_aims_outputfile
+outputfile = visualization_outputfile
+
+parser.add_argument('-i', '--inputfile', default=inputfile, help='This is the input file for the script, an AIMS ouptut file to be parsed')
+parser.add_argument('-o', '--outputfile', default=outputfile,
+                    help='This is the outputfile file for the script, where the geoemtries are writen in and .extxyz file')
+
+args = parser.parse_args()
+init_geom = args.inputfile
+outfile = args.outputfile
 
 lattice_vector = []
 atoms = []

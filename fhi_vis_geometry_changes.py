@@ -1,4 +1,7 @@
 #!python
+"""
+Joins the initial and final geometry files of a geometry optimization and generates an extxyz file
+"""
 
 from ase.io.aims import read_aims, write_aims
 from ase.io import read, write
