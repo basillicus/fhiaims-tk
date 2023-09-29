@@ -27,6 +27,7 @@ outfile = args.outputfile
 lattice_vector = []
 atoms = []
 forces = []
+n_lattice_vectors = 0
 
 # Parse the output file
 with open(init_geom) as f:
@@ -54,19 +55,29 @@ step = 0
 while step < steps:
     fout.write(f'{n_atoms}\n')
 
-    # Work out the comment line of the extxyz file
-    idx_lattice_vector = step * n_lattice_vectors
-    tmp = []
-    for vec in range(n_lattice_vectors):
-        tmp.append(lattice_vector[idx_lattice_vector + vec].split()[1:4])
+    if n_lattice_vectors > 0:
+        # Work out the comment line of the extxyz file
+        idx_lattice_vector = step * n_lattice_vectors
+        tmp = []
+        for vec in range(n_lattice_vectors):
+            tmp.append(lattice_vector[idx_lattice_vector + vec].split()[1:4])
 
-    ilattice = ''
-    for lat in tmp:
-        ilattice += ' '.join(lat)
-        ilattice += ' '
+        ilattice = ''
+        for lat in tmp:
+            ilattice += ' '.join(lat)
+            ilattice += ' '
 
-    # TODO: Work the pbc bit to handle pbc="F F T" or F F F
-    fout.write('Lattice="' + ilattice + '"  pbc="T T T"\n')
+        if n_lattice_vectors == 1:
+            pbc = ' pbc="F F T" '
+        elif n_lattice_vectors == 2:
+            pbc = ' pbc="T T F" '
+        elif n_lattice_vectors == 3:
+            pbc = ' pbc="T T T" '
+
+        fout.write('Lattice="' + ilattice + '" ' + pbc + '\n')
+    else:
+        pbc = ' pbc="F F F" '
+        fout.write(pbc + '\n')
 
     # Write atoms with their forces
     idx_atoms = step * n_atoms
