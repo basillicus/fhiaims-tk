@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 """
-Parse an aims outfile and extract information. Options not implemented
+Parse  aims outfilesi recursively and extract information. Options not implemented
 Generates a numpy binary file with the following structure:
 [steps (int,1), species(str, n_atoms), coordinates (float, (n_atoms x 3), total_energy(float, 1), forces(float, (n_atoms x 3), polarizability (float, 6)]
 
@@ -33,13 +33,11 @@ parser.add_argument('-k', '--kpoints', action='store_true', help='get k-points g
 parser.add_argument('-T', '--totaltime', action='store_true', help='get total time (Wall time)')
 parser.add_argument('-n', '--iterations', action='store_true', help='get total iterations')
 
-
 parser.add_argument('-d', '--dielectric', action='store_true', help='get polarizability/dielectric')
 
 parser.add_argument('-t', '--steptime', action='store_true', help='get  a single step time')
 parser.add_argument('-v', '--volume', action='store_true', help='get cell volume (not yet implemeted)')
 parser.add_argument('-p', '--pressure', action='store_true', help='get pressure (not yet implemeted)')
-
 
 args = parser.parse_args()
 infile = args.inputfile
@@ -49,7 +47,6 @@ get_total_time = args.totaltime
 get_iterations = args.iterations
 get_polarizabilty = args.dielectric
 
-output = ''
 # Find file to be parsed
 def find_all(name, path):
     result = []
@@ -61,10 +58,7 @@ def find_all(name, path):
 
 files = find_all(infile, './')
 
-of = open(outfile, 'a')
 for_the_array = []
-
-of.write('# file  \t\tTotal E \t n_atoms \t K Points \t  SCF iter \t Total Time \t Polarizability\n')
 for parsing_file in files:
     lattice_vector = []
     atoms = []
@@ -122,11 +116,13 @@ data_type = np.dtype([
     ('polarizability', (float, (6, ))),
 ])
 
-data_array = np.empty(len(for_the_array), dtype=data_type)
+data_array = np.array(for_the_array, dtype=data_type)
+np.save('polarizabilities', data_array, allow_pickle=True)
 
-# Populate the structured array with the collected data
-for i, item in enumerate(for_the_array):
-    step, species, atomic_coordinates, total_energy, forces, polarizability = item
-    data_array[i] = (step, species, atomic_coordinates, total_energy, forces, polarizability)
-
-np.save('polarizaties', data_array, allow_pickle=True)
+# STEP BY STEP
+# data_array = np.empty(len(for_the_array), dtype=data_type)
+#
+# # Populate the structured array with the collected data
+# for i, item in enumerate(for_the_array):
+#     step, species, atomic_coordinates, total_energy, forces, polarizability = item
+#     data_array[i] = (step, species, atomic_coordinates, total_energy, forces, polarizability)
