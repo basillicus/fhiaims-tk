@@ -74,7 +74,8 @@ for parsing_file in files:
     with open(parsing_file) as f:
         lines = f.readlines()
         # Get the step number from folder's name
-        step = parsing_file.split('_')[2]
+        # step = parsing_file.split('_').split('/')[0]
+        step = parsing_file.split('_')[2].split('/')[0]
         for i, line in enumerate(lines):
             # IMPROVEMENT Check the n_atoms does not change
             if 'Number of atoms' in line:
@@ -112,7 +113,8 @@ for parsing_file in files:
             if '| Total energy of the ' in line:
                 total_energy = float(line.split()[11])
 
-        for_the_array.append((step, species, atomic_coordinates, total_energy, forces, polarizability_tensor))
+        # for_the_array.append((step, species, atomic_coordinates, total_energy, forces, polarizability_tensor))
+        for_the_array.append((step, species, atomic_coordinates, total_energy, polarizability_tensor))
 
 # Define the data type for the structured array
 data_type = np.dtype([
@@ -120,7 +122,7 @@ data_type = np.dtype([
     ('species', 'S2', (n_atoms,)),
     ('coordinates', (float, (n_atoms, 3))),  # n_atoms is known at this point
     ('energy', float),
-    ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
+    # ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
     ('polarizability', (float, (3, 3))),
 ])
 
