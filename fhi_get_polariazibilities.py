@@ -64,6 +64,7 @@ for parsing_file in files:
     atoms = []
     species = []
     forces = []
+    polarizability_tensor = []
     kpoints = None
     total_time = None
     total_scf_iterations = None
@@ -75,6 +76,7 @@ for parsing_file in files:
         # Get the step number from folder's name
         step = parsing_file.split('_')[2]
         for i, line in enumerate(lines):
+            # IMPROVEMENT Check the n_atoms does not change
             if 'Number of atoms' in line:
                 n_atoms = int(line.split()[5])
             if 'Number of lattice vectors' in line:
@@ -98,22 +100,28 @@ for parsing_file in files:
                 total_time = line.split()[-2:-1]
             if 'Self-consistency cycle converged' in line:
                 total_scf_iterations = int(lines[i+4].split()[4])
+            # Full Polarizability tensor
+            if 'DFPT for polarizability:' in line:
+                for n in range(3):
+                    polarizability_tensor.append(lines[i+1+n].split()[0:3])
+                polarizability_tensor = np.array(polarizability_tensor, dtype=float)
+            # Polarizability components
             if '| Polarizability' in line:
                 polarizability = line.split()[2:]
                 polarizability = np.array(polarizability, dtype=float)
             if '| Total energy of the ' in line:
                 total_energy = float(line.split()[11])
 
-        for_the_array.append((step, species, atomic_coordinates, total_energy, forces, polarizability))
+        for_the_array.append((step, species, atomic_coordinates, total_energy, forces, polarizability_tensor))
 
 # Define the data type for the structured array
 data_type = np.dtype([
     ('step', int),
-    ('species', 'S2', (n_atoms,)),  # Changed np.unicode to np.unicode_
-    ('coordinates', (float, (n_atoms, 3))),  # Assumes n_atoms is known at this point
+    ('species', 'S2', (n_atoms,)),
+    ('coordinates', (float, (n_atoms, 3))),  # n_atoms is known at this point
     ('energy', float),
-    ('forces', (float, (n_atoms, 3))),  # Assumes n_atoms is known at this point
-    ('polarizability', (float, (6, ))),
+    ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
+    ('polarizability', (float, (3, 3))),
 ])
 
 data_array = np.array(for_the_array, dtype=data_type)
