@@ -1,6 +1,7 @@
 #!python
 
 import os
+import sys
 import numpy as np
 
 """
@@ -59,7 +60,12 @@ def find_all(name, path):
 files = find_all(infile, './')
 
 for_the_array = []
-for parsing_file in files:
+completion = len(files)
+for i, parsing_file in enumerate(files):
+    sys.stdout.write('\r')
+    # the exact output you're looking for:
+    sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*100), i/completion*100))
+    sys.stdout.flush()
     lattice_vector = []
     atoms = []
     species = []
@@ -75,7 +81,7 @@ for parsing_file in files:
         lines = f.readlines()
         # Get the step number from folder's name
         # step = parsing_file.split('_').split('/')[0]
-        step = parsing_file.split('_')[2].split('/')[0]
+        step = parsing_file.split('_')[-1].split('/')[0]
         for i, line in enumerate(lines):
             # IMPROVEMENT Check the n_atoms does not change
             if 'Number of atoms' in line:
@@ -127,6 +133,7 @@ data_type = np.dtype([
 ])
 
 data_array = np.array(for_the_array, dtype=data_type)
+data_array.sort()
 np.save('polarizabilities', data_array, allow_pickle=True)
 
 # STEP BY STEP

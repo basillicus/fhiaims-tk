@@ -83,7 +83,8 @@ step = initial_step
 
 print(f'Writing {outputfile} folders...', end=' ', flush=True)
 while step < final_step:
-    dirname = outfile + '_step_' + str(step) + '_ID_' + str(calc_ID)
+    # dirname = outfile + '_step_' + str(step) + '_ID_' + str(calc_ID)
+    dirname = outfile + '_step_' + str(step)
     os.makedirs(dirname, exist_ok=True)
     if do_cp_control:
         shutil.copy('control.in', dirname)
