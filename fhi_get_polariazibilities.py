@@ -63,7 +63,6 @@ for_the_array = []
 completion = len(files)
 for i, parsing_file in enumerate(files):
     sys.stdout.write('\r')
-    # the exact output you're looking for:
     sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*100), i/completion*100))
     sys.stdout.flush()
     lattice_vector = []
@@ -83,7 +82,6 @@ for i, parsing_file in enumerate(files):
         # step = parsing_file.split('_').split('/')[0]
         step = parsing_file.split('_')[-1].split('/')[0]
         for i, line in enumerate(lines):
-            # IMPROVEMENT Check the n_atoms does not change
             if 'Number of atoms' in line:
                 n_atoms = int(line.split()[5])
             if 'Number of lattice vectors' in line:
