@@ -163,11 +163,8 @@ def plot_temperature(d):
         avg = np.cumsum(temperature)/np.arange(1, len(temperature)+1)
         plt.plot(timestep, avg, label='cumulative avg')
     if window:
-        print(temperature.size)
         ravg = moving_average(temperature[::-1], int(window))
-        print(ravg.size)
         x = np.array(range(len(ravg)))
-        print(len(x))
         x += int(window)
         plt.plot(x, ravg[::-1], label=f'rolling avg {window}')
     plt.legend()
