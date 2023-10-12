@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 """
-Parse  aims outfiles recursively and extract geometry and velocity from the requested step. Options not implemented
+Parse  aims recursively and extract geometry and velocity from the requested step. Options not yet implemented
 Internally creates a numpy array with the following structure:
 [steps (int,1), species(str, n_atoms), coordinates (float, (n_atoms x 3), velocities (n_atoms x 3), forces(float, (n_atoms x 3)]
 
@@ -16,7 +16,7 @@ subarrays can be created like:
 Generates a geoemtry.in file including the velocities for each requested step
 """
 import argparse
-from config import fhi_aims_outputfile, information_outputfile
+from config import fhi_aims_outputfile, numpy_outputfile
 
 parser = argparse.ArgumentParser(
     prog='fhi_get_output_info.py',
@@ -24,21 +24,25 @@ parser = argparse.ArgumentParser(
 )
 
 inputfile = fhi_aims_outputfile
-outputfile = information_outputfile
+outputfile = numpy_outputfile
 
-parser.add_argument('-i', '--inputfile', default=inputfile, help='This is the input file for the script, an AIMS ouptut file to be parsed')
+parser.add_argument('-i', '--inputfile', default=inputfile, help='Input file for the script: an AIMS MD ouptut file to be parsed')
 parser.add_argument('-o', '--outputfile', default=outputfile,
-                    help='This is the outputfile file for the script, where the geoemtries are writen in and .extxyz file')
+                    help='outputfile file  where the information will be writen as an Numpy binary array')
 parser.add_argument('-l', '--loadfile', default=None,
                     help='Load a previously processed loadfile .npy file')
 
-# TODO: Implement this options?
 parser.add_argument('-n', '--steps', default=1, nargs='*',
                     help='Space separated integer values. Extract information from the requested steps. Positive values get the requested time step, negative values get the -step from the last (-1 implies the last step)(NEGATIVE VALUES NOT YET IMPLEMENTED)')
 
-parser.add_argument('-r', '--random', default=0, help='Extracts as many as random geometries as requested')
-parser.add_argument('-s', '--startingstep', default=0, help='Starting step from which start the random sampling')
-parser.add_argument('-f', '--finalstep', default=-1, help='Last step from which take the random sampling')
+
+# TODO: Implement this options:
+# parser.add_argument('-n', '--steps', default=1, nargs='*',
+#                     help='Space separated integer values. Extract information from the requested steps. Positive values get the requested time step, negative values get the -step from the last (-1 implies the last step)(NEGATIVE VALUES NOT YET IMPLEMENTED)')
+# 
+# parser.add_argument('-r', '--random', default=0, help='Extracts as many as random geometries as requested')
+# parser.add_argument('-s', '--startingstep', default=0, help='Starting step from which start the random sampling')
+# parser.add_argument('-f', '--finalstep', default=-1, help='Last step from which take the random sampling')
 
 
 args = parser.parse_args()
@@ -46,7 +50,7 @@ infile = args.inputfile
 outfile = args.outputfile
 loadfile = args.loadfile
 steps = args.steps
-random = args.random
+# random = args.random
 
 # Parse the output file
 def parse_MD():
@@ -126,7 +130,7 @@ def parse_MD():
 
     data_array = np.array(for_the_array, dtype=data_type)
     data_array.sort()
-    np.save('md', data_array, allow_pickle=True)
+    np.save(outputfile, data_array, allow_pickle=True)
     return data_array
 
 def write_step(dd):
@@ -163,5 +167,6 @@ else:
         print('Parsing file ', infile)
         data_array = parse_MD()
 
+print(steps)
 for s in steps:
     write_step(data_array[data_array['step'] == int(s)])
