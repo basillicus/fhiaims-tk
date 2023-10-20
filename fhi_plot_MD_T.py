@@ -31,7 +31,7 @@ parser.add_argument('-n', '--steps', default=1, nargs='*',
 
 parser.add_argument('-r', '--random', default=0, help='Extracts as many as random geometries as requested')
 parser.add_argument('-s', '--startingstep', default=0, help='Starting step from which start the random sampling')
-parser.add_argument('-f', '--finalstep', default=-1, help='Last step from which take the random sampling')
+parser.add_argument('-f', '--finalstep', default=0, help='Steps to remove from the end')
 parser.add_argument('-w', '--window', default=None, help='window of moving average')
 parser.add_argument('-a', '--averaged', action="store_true", help='Plot cumulative average')
 
@@ -39,7 +39,9 @@ args = parser.parse_args()
 infile = args.inputfile
 outfile = args.outputfile
 loadfile = args.loadfile
-steps = args.steps
+starting_step = int(args.startingstep)
+final_step = int(args.finalstep)
+steps = int(args.steps)
 random = args.random
 window = args.window
 averaged = args.averaged
@@ -70,7 +72,7 @@ def parse_MD():
         completion = len(lines)
         for i, line in enumerate(lines):
             sys.stdout.write('\r')
-            sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*100), i/completion*100+1))
+            sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*20), i/completion*100+1))
             sys.stdout.flush()
             if 'Molecular dynamics time step' in line:
                 md_time_step = float(line.split()[5])
@@ -155,18 +157,22 @@ def plot_temperature(d):
     def moving_average(x, w):
         return np.convolve(x, np.ones(w), 'valid') / w
 
-    timestep = d['step']
-    temperature = d['temperature']
+    ts = d['step']
+    T = d['temperature']
+    timestep = ts[starting_step:len(ts) - final_step]
+    temperature = T[starting_step:len(T) - final_step]
 
     plt.plot(timestep, temperature, '--', lw=0.2, label='Instant T', color='grey')
     if averaged:
         avg = np.cumsum(temperature)/np.arange(1, len(temperature)+1)
+        print(len(avg))
         plt.plot(timestep, avg, label='cumulative avg')
     if window:
         ravg = moving_average(temperature[::-1], int(window))
         x = np.array(range(len(ravg)))
-        x += int(window)
+        x += int(window) + starting_step 
         plt.plot(x, ravg[::-1], label=f'rolling avg {window}')
+    plt.title('FHI-AIMS MD')
     plt.legend()
     plt.show()
 
