@@ -52,32 +52,24 @@ step = 0
 #               step      atom     force components
 # print(forces[steps-1][n_atoms-1].split()[2:5])
 
+ilattice = ''
+if n_lattice_vectors > 0:
+    # Work out the comment line of the extxyz file
+    #idx_lattice_vector = step * n_lattice_vectors
+    tmp = []
+    for vec in range(n_lattice_vectors):
+        tmp.append(lattice_vector[vec].split()[1:4])
+
+    for lat in tmp:
+        ilattice += ' '.join(lat)
+        ilattice += ' '
+    pbc = ' pbc="T T T" '
+else:
+    pbc = ' pbc="F F F" '
+
 while step < steps:
     fout.write(f'{n_atoms}\n')
-
-    if n_lattice_vectors > 0:
-        # Work out the comment line of the extxyz file
-        idx_lattice_vector = step * n_lattice_vectors
-        tmp = []
-        for vec in range(n_lattice_vectors):
-            tmp.append(lattice_vector[idx_lattice_vector + vec].split()[1:4])
-
-        ilattice = ''
-        for lat in tmp:
-            ilattice += ' '.join(lat)
-            ilattice += ' '
-
-        if n_lattice_vectors == 1:
-            pbc = ' pbc="F F T" '
-        elif n_lattice_vectors == 2:
-            pbc = ' pbc="T T F" '
-        elif n_lattice_vectors == 3:
-            pbc = ' pbc="T T T" '
-
-        fout.write('Lattice="' + ilattice + '" ' + pbc + '\n')
-    else:
-        pbc = ' pbc="F F F" '
-        fout.write(pbc + '\n')
+    fout.write('Lattice="' + ilattice + '" ' + pbc + '\n')
 
     # Write atoms with their forces
     idx_atoms = step * n_atoms
