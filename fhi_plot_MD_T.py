@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -161,8 +161,11 @@ def plot_temperature(d):
     T = d['temperature']
     timestep = ts[starting_step:len(ts) - final_step]
     temperature = T[starting_step:len(T) - final_step]
+    print(final_step)
+    print(len(timestep))
+    print(len(temperature))
 
-    plt.plot(timestep, temperature, '--', lw=0.2, label='Instant T', color='grey')
+    plt.plot(timestep, temperature, '--', lw=0.3, label='Instant T', color='grey')
     if averaged:
         avg = np.cumsum(temperature)/np.arange(1, len(temperature)+1)
         print(len(avg))

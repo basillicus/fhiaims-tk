@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python3
 
 """Adds/substitutes the required or requested basis set to the control.in file. For help:
 

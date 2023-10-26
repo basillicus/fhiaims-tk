@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python3
 
 """
 Parse an aims.out file and extract the geoemtries and forces of a geometry optimization

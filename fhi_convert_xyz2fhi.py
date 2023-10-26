@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python3
 
 """
 Convert geometry files from and to fhi-aims format

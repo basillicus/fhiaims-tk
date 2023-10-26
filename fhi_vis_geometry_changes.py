@@ -1,4 +1,5 @@
-#!python
+#!/usr/bin/env python3
+# #!python
 """
 Joins the initial and final geometry files of a geometry optimization and generates an extxyz file
 """

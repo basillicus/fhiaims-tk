@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python3
 
 """ Generates individual geometries.in files, one from each MD step, from an aims.out file containing a MD 
 Returns one folder per geometry where the polarazibility will be calculated
