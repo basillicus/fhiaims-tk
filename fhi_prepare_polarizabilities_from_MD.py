@@ -92,7 +92,10 @@ while step < final_step:
     fout = open('geometry.in', 'w')
     if n_lattice_vectors > 0:
         # Work out the lattice parameters
-        idx_lattice_vector = step * n_lattice_vectors
+        # NOTE: I leave this here just in case in the future the lattice vectors
+        # change with the dynamics and need to be updated at each step
+        # idx_lattice_vector = step * n_lattice_vectors
+        idx_lattice_vector = 0 * n_lattice_vectors
         for vec in range(n_lattice_vectors):
             fout.write(lattice_vector[idx_lattice_vector + vec])
 
