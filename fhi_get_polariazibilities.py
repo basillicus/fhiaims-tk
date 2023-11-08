@@ -63,7 +63,7 @@ for_the_array = []
 completion = len(files)
 for i, parsing_file in enumerate(files):
     sys.stdout.write('\r')
-    sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*100), i/completion*100))
+    sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*20), i/completion*100+1))
     sys.stdout.flush()
     lattice_vector = []
     atoms = []
@@ -87,7 +87,7 @@ for i, parsing_file in enumerate(files):
             if 'Number of lattice vectors' in line:
                 n_lattice_vectors = int(line.split()[6])
             if 'lattice_vector' in line:
-                lattice_vector.append(line)
+                lattice_vector.append(line.split()[1:4])
             if '  Atom  ' in line:
                 atomic_coordinates = []
                 species = []
@@ -105,8 +105,13 @@ for i, parsing_file in enumerate(files):
                 total_time = line.split()[-2:-1]
             if 'Self-consistency cycle converged' in line:
                 total_scf_iterations = int(lines[i+4].split()[4])
-            # Full Polarizability tensor
+            # Full Polarizability tensor for molecules
             if 'DFPT for polarizability:' in line:
+                for n in range(3):
+                    polarizability_tensor.append(lines[i+1+n].split()[0:3])
+                polarizability_tensor = np.array(polarizability_tensor, dtype=float)
+            # Full Polarizability tensor for crystals
+            if 'DFPT for dielectric_constant:' in line:
                 for n in range(3):
                     polarizability_tensor.append(lines[i+1+n].split()[0:3])
                 polarizability_tensor = np.array(polarizability_tensor, dtype=float)
@@ -117,16 +122,27 @@ for i, parsing_file in enumerate(files):
             if '| Total energy of the ' in line:
                 total_energy = float(line.split()[11])
 
+        # Check the calculation is finished properly:
+        # if len(polarizability_tensor) == 0:
+        #     print('File ', f.name, ' contains no polarizability')
+        #     continue
         # for_the_array.append((step, species, atomic_coordinates, total_energy, forces, polarizability_tensor))
-        for_the_array.append((step, species, atomic_coordinates, total_energy, polarizability_tensor))
+        if len(lattice_vector) == 0:     # is a molecule
+            for_the_array.append((step, species, atomic_coordinates, total_energy, polarizability_tensor))
+        else:   # is a  a crystal
+            lattice_vector = np.array(lattice_vector)
+            for_the_array.append((step, species, lattice_vector, atomic_coordinates, total_energy, polarizability_tensor))
 
+
+print()
 # Define the data type for the structured array
 data_type = np.dtype([
     ('step', int),
     ('species', 'S2', (n_atoms,)),
+    ('lattice_vector', (float, (3, 3))),  # n_atoms is known at this point
     ('coordinates', (float, (n_atoms, 3))),  # n_atoms is known at this point
     ('energy', float),
-    # ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
+    # # ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
     ('polarizability', (float, (3, 3))),
 ])
 
