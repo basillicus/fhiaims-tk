@@ -68,6 +68,7 @@ for i, parsing_file in enumerate(files):
     sys.stdout.flush()
     lattice_vector = []
     atoms = []
+    atomic_coordinates = []
     species = []
     forces = []
     polarizability_tensor = []
