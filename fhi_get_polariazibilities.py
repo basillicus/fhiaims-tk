@@ -30,6 +30,7 @@ parser.add_argument('-o', '--outputfile', default=outputfile,
                     help='This is the outputfile file for the script, where the geoemtries are writen in and .extxyz file')
 
 # TODO: Implement this options?
+#
 parser.add_argument('-k', '--kpoints', action='store_true', help='get k-points grid')
 parser.add_argument('-T', '--totaltime', action='store_true', help='get total time (Wall time)')
 parser.add_argument('-n', '--iterations', action='store_true', help='get total iterations')
@@ -70,6 +71,7 @@ for i, parsing_file in enumerate(files):
     species = []
     forces = []
     polarizability_tensor = []
+    polarizability_elements = []
     kpoints = None
     total_time = None
     total_scf_iterations = None
@@ -116,35 +118,54 @@ for i, parsing_file in enumerate(files):
                     polarizability_tensor.append(lines[i+1+n].split()[0:3])
                 polarizability_tensor = np.array(polarizability_tensor, dtype=float)
             # Polarizability components
-            if '| Polarizability' in line:
-                polarizability = line.split()[2:]
-                polarizability = np.array(polarizability, dtype=float)
+            # NOTE: not used, and we avoid the formating error '*****'
+                # if '| Polarizability' in line:
+                #     polarizability = line.split()[2:]
+                #     polarizability = np.array(polarizability, dtype=float)
+                # if 'Polarizability (Bohr)' in line:
+                #     for n in range(3):
+                #         polarizability_elements.append(lines[i+1+n].split()[0:3])
+                #         pe = polarizability_elements
+                #     polarizability = np.array([pe[0], pe[4], pe[8], pe[1], pe[2], pe[5]], dtype=float)
             if '| Total energy of the ' in line:
                 total_energy = float(line.split()[11])
 
         # Check the calculation is finished properly:
-        # if len(polarizability_tensor) == 0:
-        #     print('File ', f.name, ' contains no polarizability')
-        #     continue
-        # for_the_array.append((step, species, atomic_coordinates, total_energy, forces, polarizability_tensor))
+        if len(atomic_coordinates) == 0:
+            print('File ', f.name, ' contains no coordinates')
+            continue
+        if len(polarizability_tensor) == 0:
+            print('File ', f.name, ' contains no polarizability')
+            continue
+
         if len(lattice_vector) == 0:     # is a molecule
             for_the_array.append((step, species, atomic_coordinates, total_energy, polarizability_tensor))
         else:   # is a  a crystal
             lattice_vector = np.array(lattice_vector)
             for_the_array.append((step, species, lattice_vector, atomic_coordinates, total_energy, polarizability_tensor))
 
-
 print()
 # Define the data type for the structured array
-data_type = np.dtype([
-    ('step', int),
-    ('species', 'S2', (n_atoms,)),
-    ('lattice_vector', (float, (3, 3))),  # n_atoms is known at this point
-    ('coordinates', (float, (n_atoms, 3))),  # n_atoms is known at this point
-    ('energy', float),
-    # # ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
-    ('polarizability', (float, (3, 3))),
-])
+if len(lattice_vector) == 0:     # is a molecule
+    data_type = np.dtype([
+        ('step', int),
+        ('species', 'S2', (n_atoms,)),
+        # ('lattice_vector', (float, (3, 3))),  # n_atoms is known at this point
+        ('coordinates', (float, (n_atoms, 3))),  # n_atoms is known at this point
+        ('energy', float),
+        # # ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
+        ('polarizability', (float, (3, 3))),
+    ])
+else:
+    data_type = np.dtype([
+        ('step', int),
+        ('species', 'S2', (n_atoms,)),
+        ('lattice_vector', (float, (3, 3))),  # n_atoms is known at this point
+        ('coordinates', (float, (n_atoms, 3))),  # n_atoms is known at this point
+        ('energy', float),
+        # # ('forces', (float, (n_atoms, 3))),  # n_atoms is known at this point
+        ('polarizability', (float, (3, 3))),
+    ])
 
 data_array = np.array(for_the_array, dtype=data_type)
 data_array.sort()
