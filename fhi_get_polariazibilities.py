@@ -5,7 +5,7 @@ import sys
 import numpy as np
 
 """
-Parse  aims outfilesi recursively and extract information. Options not implemented
+Parse  aims outfiles recursively and extract information. Options not implemented
 Generates a numpy binary file with the following structure:
 [steps (int,1), species(str, n_atoms), coordinates (float, (n_atoms x 3), total_energy(float, 1), forces(float, (n_atoms x 3), polarizability (float, 6)]
 
@@ -109,7 +109,11 @@ for i, parsing_file in enumerate(files):
             if 'Self-consistency cycle converged' in line:
                 total_scf_iterations = int(lines[i+4].split()[4])
             # Full Polarizability tensor for molecules
-            if 'DFPT for polarizability:' in line:
+            if 'DFPT for polarizability:' in line:    # Line when not using DFPT_centralised (old module)
+                for n in range(3):
+                    polarizability_tensor.append(lines[i+1+n].split()[0:3])
+                polarizability_tensor = np.array(polarizability_tensor, dtype=float)
+            if 'Polarizability (Bohr^3) :' in line:    # Line when using DFPT_centralised (new module)
                 for n in range(3):
                     polarizability_tensor.append(lines[i+1+n].split()[0:3])
                 polarizability_tensor = np.array(polarizability_tensor, dtype=float)
