@@ -5,6 +5,7 @@ Returns one folder per geometry where the polarazibility will be calculated
 """
 
 import os
+import sys
 import shutil
 
 import argparse
@@ -20,7 +21,7 @@ outputfile = 'polar'
 
 parser.add_argument('-i', '--inputfile', default=inputfile, help='This is the input file for the script, an AIMS ouptut file to be parsed')
 parser.add_argument('-o', '--outputfile', default=outputfile,
-                    help='This is the prefix for the outputfile folder, where the geoemtries will be writen in aims format')
+                    help='This is the prefix for the outputfile folder, where the geometries will be writen in aims format')
 parser.add_argument('-c', '--copycontrol', action='store_true', default=False,
                     help='If control.in file is in the folder, it will be copied to the folders')
 parser.add_argument('-s', '--steps', default=1, type=int,
@@ -52,20 +53,29 @@ lattice_vector = []
 n_lattice_vectors = 0
 atoms = []
 forces = []
+isteps = []
 
-print(f'Parsing {inputfile} ...', end="", flush=True)
+print(f'Parsing {init_geom} ...', end="", flush=True)
 
 # Parse the output file
 with open(init_geom) as f:
     lines = f.readlines()
     for i, line in enumerate(lines):
+        if 'Time step number' in line:
+            isteps.append(int(line.split()[5]))
         if 'Number of atoms' in line:
             n_atoms = int(line.split()[5])
         if 'Number of lattice vectors' in line:
             n_lattice_vectors = int(line.split()[6])
         if 'lattice_vector' in line:
             lattice_vector.append(line)
-        if '  atom  ' in line:
+
+        # if '   atom   ' in line:  # this is the correct one! Uncomment when finsh CPPs
+        # FIXME: When finishing with the CPPs, use the line:
+        # if '   atom   ' in line:  # this is the correct one!
+        # We keep the wrong one to maintain the same error, so the continuity of the
+        # geometries is maintained
+        if '  atom   ' in line:   # This is wrong. Geometries will be step-1
             atoms.append(line)
         if 'Total atomic forces' in line:
             forces.append(lines[i+1:i+1+n_atoms])
@@ -73,40 +83,68 @@ with open(init_geom) as f:
 print("OK!")
 
 # Work out the interval
-steps = len(forces)
+nsteps = len(isteps)
+first_step = isteps[0]
+last_step = isteps[-1]
+if not initial_step:
+    initial_step = first_step
+elif initial_step < first_step:
+    print('WARNING. Initial step is smaller than available first step')
+    print('setting initial step to ', first_step)
+    initial_step = first_step
+elif initial_step > last_step:
+    print('ERROR. Initial step is larger than available last step')
+    print('Reduce inital step or extend your MD')
+    sys.exit()
+elif initial_step > last_step:
+    print('ERROR. inital step is larger than available last step')
+    print('reduce inital step ')
+    sys.exit()
+
 if not final_step:
-    final_step = steps
-elif final_step > steps:
-    final_steps = steps
-step = initial_step
+    final_step = last_step
+elif final_step > last_step:
+    print('WARNING. Final step is larger than available last step')
+    print('setting final step to ', last_step)
+    final_step = last_step
+elif final_step < first_step:
+    print('ERROR. final step is smaller than available first step')
+    print('Increase final step ')
+    sys.exit()
+if final_step < initial_step:
+    print('ERROR. final step is smaller than initial step. Invert values?')
+    sys.exit()
 
 
-print(f'Writing {outputfile} folders...', end=' ', flush=True)
-while step < final_step:
+print(f'Writing {outputfile} folders, from {initial_step} to {final_step}...', end=' ', flush=True)
+n = 0
+while n < nsteps:
     # dirname = outfile + '_step_' + str(step) + '_ID_' + str(calc_ID)
-    dirname = outfile + '_step_' + str(step)
-    os.makedirs(dirname, exist_ok=True)
-    if do_cp_control:
-        shutil.copy('control.in', dirname)
-    os.chdir(dirname)
-    fout = open('geometry.in', 'w')
-    if n_lattice_vectors > 0:
-        # Work out the lattice parameters
-        # NOTE: I leave this here just in case in the future the lattice vectors
-        # change with the dynamics and need to be updated at each step
-        # idx_lattice_vector = step * n_lattice_vectors
-        idx_lattice_vector = 0 * n_lattice_vectors
-        for vec in range(n_lattice_vectors):
-            fout.write(lattice_vector[idx_lattice_vector + vec])
+    step = isteps[n]
+    if step >= initial_step and step <= final_step:
+        dirname = outfile + '_step_' + str(step)
+        os.makedirs(dirname, exist_ok=True)
+        if do_cp_control:
+            shutil.copy('control.in', dirname)
+        os.chdir(dirname)
+        fout = open('geometry.in', 'w')
+        if n_lattice_vectors > 0:
+            # Work out the lattice parameters
+            # NOTE: I leave this here just in case in the future the lattice vectors
+            # change with the dynamics and need to be updated at each step
+            # idx_lattice_vector = n * n_lattice_vectors
+            idx_lattice_vector = 0 * n_lattice_vectors
+            for vec in range(n_lattice_vectors):
+                fout.write(lattice_vector[idx_lattice_vector + vec])
 
-    # Write atoms with their forces
-    idx_atoms = step * n_atoms
-    for atom in range(n_atoms):
-        iatom = atoms[idx_atoms + atom]
-        fout.write(iatom)
-    step += step_interval
-    calc_ID += 1
-    fout.close()
-    os.chdir('../')
+        # Write atoms with their forces
+        idx_atoms = n * n_atoms
+        for atom in range(n_atoms):
+            iatom = atoms[idx_atoms + atom]
+            fout.write(iatom)
+        calc_ID += 1
+        fout.close()
+        os.chdir('../')
+    n += step_interval
 print("OK!")
 print("Done!")
