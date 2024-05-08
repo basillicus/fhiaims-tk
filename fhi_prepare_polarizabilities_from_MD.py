@@ -121,7 +121,9 @@ n = 0
 while n < nsteps:
     # dirname = outfile + '_step_' + str(step) + '_ID_' + str(calc_ID)
     step = isteps[n]
+    update_step = 1
     if step >= initial_step and step <= final_step:
+        update_step = step_interval
         dirname = outfile + '_step_' + str(step)
         os.makedirs(dirname, exist_ok=True)
         if do_cp_control:
@@ -145,6 +147,6 @@ while n < nsteps:
         calc_ID += 1
         fout.close()
         os.chdir('../')
-    n += step_interval
+    n += update_step
 print("OK!")
 print("Done!")
