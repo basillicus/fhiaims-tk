@@ -69,13 +69,7 @@ with open(init_geom) as f:
             n_lattice_vectors = int(line.split()[6])
         if 'lattice_vector' in line:
             lattice_vector.append(line)
-
-        # if '   atom   ' in line:  # this is the correct one! Uncomment when finsh CPPs
-        # FIXME: When finishing with the CPPs, use the line:
-        # if '   atom   ' in line:  # this is the correct one!
-        # We keep the wrong one to maintain the same error, so the continuity of the
-        # geometries is maintained
-        if '  atom   ' in line:   # This is wrong. Geometries will be step-1
+        if '   atom   ' in line:
             atoms.append(line)
         if 'Total atomic forces' in line:
             forces.append(lines[i+1:i+1+n_atoms])
