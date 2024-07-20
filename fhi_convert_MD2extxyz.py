@@ -44,4 +44,4 @@ if all:
     if do_center:
         for i in range(len(md)):
             md[i].center()
-    write(outputfile, md)
+    write(outfile, md)
