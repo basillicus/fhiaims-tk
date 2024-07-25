@@ -11,7 +11,7 @@ It uses ASE as external dependency.
 ## Configure
 
 1. Clone the repository.
-2. Edit the config.py file to add your own paths.
+2. Copy the config_template.py file to config.py file and edit it to add your own paths. (not all scripts make use of it)
 3. You need a python interpreter configured in your system and ASE installed. I like to have a dedicated conda environment:
 
     conda create -c conda-forge -n compchem python=3 ase
