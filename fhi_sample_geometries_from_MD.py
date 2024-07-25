@@ -3,12 +3,12 @@
 import os
 
 import argparse
-from ase.io import read
+from ase.io import read, write
 from ase.io.aims import write_aims
 import numpy as np
 
 '''
-sample num_samples unique geometries from a MD, and creates the corresponding geometry.in file of each geometry in a separate folder
+Sample <num_samples> unique geometries from a MD in a extxyz format, and creates the corresponding geometry.in file of each geometry in a separate folder
 '''
 
 # Read the arguments
@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser(
 
 inputfile = 'md.extxyz'
 outputfile = 'geometry.in'
+outputfile_extxyz = 'sampled.extxyz'
 
 parser.add_argument('-i', '--inputfile', default=inputfile,
                     help='input file: MD file to take the samples from [md.extxyz]')
@@ -28,31 +29,34 @@ parser.add_argument('-p', '--prefix', default='md_sample_',
                     help='Prefix for the created folders. [md_sample_]')
 parser.add_argument('-n', '--samples', default=1,
                     help='Total number of geometries to sample. [1]')
-parser.add_argument('-c', '--write_control', action='store_true',
-                    help='Write template control file in the current folder')
+# parser.add_argument('-c', '--write_control', action='store_true',
+#                     help='Write template control file in the current folder')
 
 args = parser.parse_args()
 infile = args.inputfile
 outfile = args.outputfile
 num_samples = int(args.samples)
 prefix_folder = args.prefix
-write_control = args.write_control
+# write_control = args.write_control
+write_control = False
 
 # Read the MD
-print('Reading Molecular dynamics file...', end='')
+print(f'Reading Molecular dynamics file: {infile} ...', end='', flush=True)
 md = read(infile, index=':')
 print('Done!')
 
 # Sampling from the Md
-print('Selecting random geometries...', end='')
+print('Selecting random geometries...', end='', flush=True)
 random_indices = np.random.choice(len(md), num_samples, replace=False)
 print('Done!')
 
 # Wrtite the aims geometry.in files
-print('Writting selected geometries...', end='')
+print('Writting selected geometries...', end='', flush=True)
 for i in random_indices:
-    # write(outputfile, md[i], append=True)
+    write(outputfile_extxyz, md[i], append=True)
     ifolder = prefix_folder+str(i)
+    # NOTE: If the folder exist, will still count as a sampled geometry.
+    # final number of samples has to be checked by user
     os.makedirs(ifolder, exist_ok=True)
     write_aims(ifolder + '/geometry.in', md[i])
 print('Done!')

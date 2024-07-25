@@ -3,6 +3,7 @@
 import os
 import sys
 import numpy as np
+from tqdm import tqdm
 
 """
 Parse  extxyz outfile  and saves information to a numpy dataset. Options not implemented
@@ -18,8 +19,8 @@ import argparse
 from config import fhi_aims_outputfile, information_outputfile
 
 parser = argparse.ArgumentParser(
-    prog='fhi_get_output_info.py',
-    description='Extracts information from an aims ouptput (aims.out) file',
+    prog='fhi_convert_MDextxyz2nump.py',
+    description='Converts a MD in extxyz format into a numpy array with a dataset strcuture',
 )
 
 inputfile = fhi_aims_outputfile
@@ -28,10 +29,18 @@ outputfile = information_outputfile
 parser.add_argument('-i', '--inputfile', default=inputfile, help='This is the input file for the script, an AIMS ouptut file to be parsed')
 parser.add_argument('-o', '--outputfile', default=outputfile,
                     help='This is the outputfile file for the script, where the geoemtries are writen in and .extxyz file')
+parser.add_argument('--pbc', default=False, action='store_true',
+                    help='Set the system has Periodic Boundary Condition')
 
 args = parser.parse_args()
 infile = args.inputfile
 outfile = args.outputfile
+pbc = args.pbc
+
+if pbc:
+    search_pattern = 'Latti'
+else:
+    search_pattern = 'Prop'
 
 # Find file to be parsed
 def find_all(name, path):
@@ -52,18 +61,18 @@ polarizability_tensor = []
 polarizability_elements = []
 n_atoms = None
 step = 0
+
 # Parse the output file
 with open(parsing_file) as f:
     n_atoms = int(f.readline())
     lines = f.readlines()
     completion = len(lines)
     print('reading file...')
-    for i, line in enumerate(lines):
-        sys.stdout.write('\r')
-        sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*20), i/completion*100+1))
-        sys.stdout.flush()
-        # if line.startswith("Prop"):
-        if line.startswith("Latti"):
+    for i, line in tqdm(enumerate(lines), total=completion, colour='blue'):
+        # sys.stdout.write('\r')
+        # sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*20), i/completion*100+1))
+        # sys.stdout.flush()
+        if line.startswith(search_pattern):
             atomic_coordinates = []
             species = []
             forces = []
