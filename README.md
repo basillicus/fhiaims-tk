@@ -17,6 +17,11 @@ It uses ASE as external dependency.
     conda create -c conda-forge -n compchem python=3 ase
     conda activate compchem
 
+You may need also tqdm if you use some of the scripts that use it. Some files are very large and takes a while for them to read and parse them, that is why it is better to see a progress bar. If you need tqdm:
+
+    (compchem)$ conda install tqdm
+
+
 ### My own set up  
 
 I do the following because I believe is simple, and does not mess with your path until you need it.
