@@ -47,45 +47,15 @@ if num_samples > 0:
 
 final_samples = len(indices)
 print(f'Writing {outputfile} with a total of {final_samples} samples ...', end='', flush=True)
-# Loop over each subdir and read a file named "example.txt" inside it
+# Loop over each subdir and read a files inside it
 for i in indices:
     path = os.path.join(subdirs[i], inputfile)
     if os.path.exists(path):
-        # lattice_vector = []
-        # atoms = []
-        # atomic_coordinates = []
-        # species = []
-        # forces = []
         polarizability_tensor = []
-        # polarizability_elements = []
-        # polarizability = None
-        # n_atoms = None
 
         with open(path) as f:
             lines = f.readlines()
             for i, line in enumerate(lines):
-                # if 'Number of atoms' in line:
-                #     n_atoms = int(line.split()[5])
-                # if 'Number of lattice vectors' in line:
-                #     n_lattice_vectors = int(line.split()[6])
-                # if 'lattice_vector' in line:
-                #     lattice_vector.append(line.split()[1:4])
-                # if '  Atom  ' in line:
-                #     atomic_coordinates = []
-                #     species = []
-                #     for n in range(n_atoms):
-                #         species.append(lines[i+1+n].split()[3])
-                #         atomic_coordinates.append(lines[i+1+n].split()[4:7])
-                #     atomic_coordinates = np.array(atomic_coordinates, dtype=float)
-                # if 'Total atomic forces' in line:
-                #     for n in range(n_atoms):
-                #         forces.append(lines[i+1+n].split()[2:5])
-                #     forces = np.array(forces, dtype=float)
-                # # Full Polarizability tensor for molecules
-                # if 'DFPT for polarizability:' in line:    # Line when not using DFPT_centralised (old module)
-                #     for n in range(3):
-                #         polarizability_tensor.append(lines[i+1+n].split()[0:3])
-                #     polarizability_tensor = np.array(polarizability_tensor, dtype=float)
                 if 'Polarizability (Bohr^3) :' in line:    # Line when using DFPT_centralised (new module)
                     for n in range(3):
                         polarizability_tensor.append(lines[i+1+n].split()[0:3])
@@ -95,8 +65,6 @@ for i in indices:
                     for n in range(3):
                         polarizability_tensor.append(lines[i+1+n].split()[0:3])
                     polarizability_tensor = np.array(polarizability_tensor, dtype=float)
-                # if '| Total energy of the ' in line:
-                #     total_energy = float(line.split()[11])
             if len(polarizability_tensor) == 0:
                 print('File ', f.name, ' contains no polarizability')
                 continue
