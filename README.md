@@ -14,8 +14,8 @@ It uses ASE as external dependency.
 2. Copy the config_template.py file to config.py file and edit it to add your own paths. (not all scripts make use of it)
 3. You need a python interpreter configured in your system and ASE installed. I like to have a dedicated conda environment:
 
-    conda create -c conda-forge -n compchem python=3 ase
-    conda activate compchem
+       conda create -c conda-forge -n compchem python=3 ase
+       conda activate compchem
 
 You may need also tqdm if you use some of the scripts that use it. Some files are very large and takes a while for them to read and parse them, that is why it is better to see a progress bar. If you need tqdm:
 
