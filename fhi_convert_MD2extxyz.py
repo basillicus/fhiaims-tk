@@ -3,8 +3,7 @@
 import os
 
 """
-Parse an aims outfile and extract requested information.
-Prints a table with the requested information. By default gets the total energy.
+Reads a MD file (will try to infer the format) and writes an .extxyz file. Different outputfiles can be given if supported by ASE
 """
 
 import argparse
@@ -13,8 +12,8 @@ from config import fhi_aims_outputfile, extxyz_outputfile
 from ase.io import read, write
 
 parser = argparse.ArgumentParser(
-    prog='fhi_get_output_info.py',
-    description='Extracts information from an aims ouptput (aims.out) file',
+    prog='fhi_convert_MD2extxyz.py',
+    description='Converts MD files to extxyz (or others if supported by ASE)',
 )
 
 inputfile = fhi_aims_outputfile

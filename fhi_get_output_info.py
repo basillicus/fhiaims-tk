@@ -3,8 +3,9 @@
 import os
 
 """
-Parse an aims outfile and extract requested information.
-Prints a table with the requested information. By default gets the total energy.
+Parse an aims outfile (geometry optimization or single point) and extract
+requested information.  Prints a table with the requested information. By
+default gets the total energy.
 """
 
 import argparse
@@ -18,9 +19,9 @@ parser = argparse.ArgumentParser(
 inputfile = fhi_aims_outputfile
 outputfile = information_outputfile
 
-parser.add_argument('-i', '--inputfile', default=inputfile, help='This is the input file for the script, an AIMS ouptut file to be parsed')
+parser.add_argument('-i', '--inputfile', default=inputfile, help='input file for the script, an AIMS ouptut file to be parsed (geometry optimization or single point)')
 parser.add_argument('-o', '--outputfile', default=outputfile,
-                    help='This is the outputfile file for the script, where the geoemtries are writen in and .extxyz file')
+                    help='outputfile file where the information will be written')
 parser.add_argument('-k', '--kpoints', action='store_true', help='get k-points grid')
 parser.add_argument('-T', '--totaltime', action='store_true', help='get total time (Wall time)')
 parser.add_argument('-n', '--iterations', action='store_true', help='get total iterations')
@@ -69,7 +70,7 @@ for parsing_file in files:
     with open(parsing_file) as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
-            if 'Number of atoms' in line:
+            if '| Number of atoms' in line:
                 n_atoms = int(line.split()[5])
             if 'Number of lattice vectors' in line:
                 n_lattice_vectors = int(line.split()[6])

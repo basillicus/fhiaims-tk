@@ -26,7 +26,7 @@ personal_path = fhi_basis_set_path
 
 parser.add_argument('-p', '--path', default=personal_path,
                     help='set basis set path. Change the personal_path variable in the script so you do not have to set it everytime')
-parser.add_argument('-l', '--level', default='light', choices=['light', 'intermediate', 'tight', 'very-tight'], help='set basis set level')
+parser.add_argument('-l', '--level', default='light', choices=['light', 'lightdense', 'light_spd', 'ligh_rm2', 'intermediate', 'intermediate_gw',  'tight', 'tight_gw', 'really-tight', 'really_tight_gw',  'minimal+s', ], help='set basis set level')
 parser.add_argument('-t', '--tier', default=1, choices=[1, 2, 3, 4], help='set basis set tier level (Not yet implemented. Do it manually)')
 parser.add_argument('-s', '--species', default=None, nargs='*',
                     help='set species to be added. If none given, will guess it from the geometry.in file')

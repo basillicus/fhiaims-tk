@@ -20,13 +20,13 @@ from config import fhi_aims_outputfile, information_outputfile
 
 parser = argparse.ArgumentParser(
     prog='fhi_convert_MDextxyz2nump.py',
-    description='Converts a MD in extxyz format into a numpy array with a dataset strcuture',
+    description='Converts a MD in extxyz format into a structured numpy array',
 )
 
 inputfile = fhi_aims_outputfile
 outputfile = information_outputfile
 
-parser.add_argument('-i', '--inputfile', default=inputfile, help='This is the input file for the script, an AIMS ouptut file to be parsed')
+parser.add_argument('-i', '--inputfile', default=inputfile, help='input file for the script, i.e an AIMS ouptut file to be parsed')
 parser.add_argument('-o', '--outputfile', default=outputfile,
                     help='This is the outputfile file for the script, where the geoemtries are writen in and .extxyz file')
 parser.add_argument('--pbc', default=False, action='store_true',
@@ -69,15 +69,12 @@ with open(parsing_file) as f:
     completion = len(lines)
     print('reading file...')
     for i, line in tqdm(enumerate(lines), total=completion, colour='blue'):
-        # sys.stdout.write('\r')
-        # sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*20), i/completion*100+1))
-        # sys.stdout.flush()
         if line.startswith(search_pattern):
             atomic_coordinates = []
             species = []
             forces = []
             velocities = []
-            step += 1
+            step += 1  # step is not included in the .extxyz -> start in  1
             for n in range(n_atoms):
                 split_line = lines[i+1+n].split()
                 species.append(split_line[0])

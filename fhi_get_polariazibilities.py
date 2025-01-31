@@ -174,7 +174,8 @@ else:
 
 data_array = np.array(for_the_array, dtype=data_type)
 data_array.sort()
-np.save('polarizabilities', data_array, allow_pickle=True)
+# np.save('polarizabilities', data_array, allow_pickle=True)
+np.save('polarizabilities', data_array)
 
 # STEP BY STEP
 # data_array = np.empty(len(for_the_array), dtype=data_type)
