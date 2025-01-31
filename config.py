@@ -1,7 +1,7 @@
 fhi_basis_set_path = '/home/david/opt/fhi-aims/fhi-aims.221103_1/species_defaults/defaults_2020'
 fhi_aims_outputfile = 'aims.out'
 cp2k_outputfile = 'cp2k.out'
-visualization_outputfile = 'geoemtries.extxyz'
+visualization_outputfile = 'geometries.extxyz'
 information_outputfile = 'info.dat'
 numpy_outputfile = 'info'
 extxyz_outputfile = 'md.extxyz'

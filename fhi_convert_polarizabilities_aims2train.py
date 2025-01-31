@@ -69,6 +69,6 @@ for i in indices:
                 print('File ', f.name, ' contains no polarizability')
                 continue
             iaims = read(path)
-            iaims.info['polarizability'] = polarizability_tensor.flatten()
+            iaims.info['REF_polarizability'] = polarizability_tensor.flatten()
             write(outputfile, iaims, append=True)
 print('Done!')
