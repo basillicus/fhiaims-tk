@@ -35,6 +35,11 @@ parser.add_argument('--pbc', default=False, action='store_true',
 parser.add_argument('--sort', default=False, action='store_true',
                     help='sort .extxyz by time step')
 
+parser.add_argument('--convert_dipoles', default=False, action='store_true',
+                    help='convert dipoles from eAng to Debye')
+
+parser.add_argument('--convert_alphas', default=False, action='store_true',
+                    help='convert polarizabilities from Bohr^3 to me A^2/V ')
 
 # parser.add_argument('-a', '--all', action='store_true', default=True,
 #                     help='all steps will be read/writen')
@@ -44,6 +49,8 @@ dipole_files = args.dipoles
 polarizability_files = args.polarizabilities
 is_periodic = args.pbc
 do_sort = args.sort
+convert_dipoles = args.convert_dipoles
+convert_alphas = args.convert_alphas
 outfile = args.outputfile
 
 # Handle errors
@@ -70,7 +77,9 @@ print('polarizabilities shape:', polarizabilities.shape)
 
 # Merging arrays
 print('Merging dipoles and polarizabilities...', end='', flush=True)
-merged_dataset = merge_datasets(dipoles, polarizabilities, search_range=2, periodic=is_periodic)
+merged_dataset = merge_datasets(dipoles, polarizabilities,
+        search_range=2, periodic=is_periodic,
+        convert_dipoles=convert_dipoles, convert_alphas=convert_alphas)
 print('OK')
 print('Merged data shape:', merged_dataset.shape)
 

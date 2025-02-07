@@ -3,7 +3,7 @@ from ase import Atoms
 from ase.io.extxyz import write_extxyz, read_extxyz
 
 
-def merge_datasets(dipoles, polarizabilities, search_range=5, periodic=False):
+def merge_datasets(dipoles, polarizabilities, search_range=5, periodic=False, convert_dipoles=False, convert_alphas=False):
     """
     Merges dipole and polarizability datasets based on matching coordinates.
     Uses step values from dipoles as the reference.
@@ -13,6 +13,9 @@ def merge_datasets(dipoles, polarizabilities, search_range=5, periodic=False):
     polarizabilities (numpy.ndarray): Structured array containing polarizability-related data.
     search_range (int): Number of steps before/after to search for coordinate matches.
     periodic (bool): Whether the system is periodic, including lattice and stress if True.
+    convert_dipoles (bool): Convert dipoles from eAng to Debye (as per MACE output dipole)
+    convert_alphas (bool): Convert alphas from Bohr**3 to meA^2/V (as per MACE RMSE polarizability output)
+
 
     Returns:
     numpy.ndarray: Merged dataset with matched dipole and polarizability information.
@@ -67,7 +70,16 @@ def merge_datasets(dipoles, polarizabilities, search_range=5, periodic=False):
     if periodic:
         merged_dtype.extend([('lattice', '<f8', (3, 3)), ('stress', '<f8', (3, 3))])
 
-    return np.array(merged_data, dtype=np.dtype(merged_dtype))
+
+    merged_array = np.array(merged_data, dtype=np.dtype(merged_dtype))
+    if convert_dipoles:
+        merged_array['dipole'] = merged_array['dipole'] / 0.20819434   # eAng to Debye
+
+    if convert_dipoles:
+        # Bohr^3 to Angstrom^3
+        merged_array['polarizability'] = merged_array['polarizability'] * 0.14818471
+
+    return merged_array
 
 
 def write_extxyz_file(merged_dataset, filename="merged_data.extxyz", periodic=False, lattice=None,

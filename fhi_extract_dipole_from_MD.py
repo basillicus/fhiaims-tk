@@ -8,6 +8,8 @@ from ase.io import read, write
 from ase.io.aims import write_aims
 import numpy as np
 
+from tqdm import tqdm
+
 '''
 Reads the geometry and dipole from an MD aims.out file  and generates a numpy array
 '''
@@ -33,7 +35,7 @@ parser.add_argument('-o', '--outputfile', default=outputfile,
 
 args = parser.parse_args()
 inputfile = args.inputfile
-outfile = args.outputfile
+outputfile = args.outputfile
 # prefix_folder = args.prefix
 # num_samples = int(args.samples)
 
@@ -57,17 +59,14 @@ def parse_MD(infile):
     array_forces = []
     for_the_array = []
 
-    print('Reading:', infile)
+    # print('Reading:', infile)
     with open(infile) as f:
         lines = f.readlines()
         completion = len(lines)
-        for i, line in enumerate(lines):
-            #             sys.stdout.write('\r')
-            # sys.stdout.write("[%-20s] %d%%" % ('='*int(i/completion*100), i/completion*100+1))
-            # sys.stdout.flush()
+        for i, line in tqdm(enumerate(lines), total=completion):
             if 'Molecular dynamics time step' in line:
                 md_time_step = float(line.split()[5])
-            if 'Number of atoms' in line:
+            if '| Number of atoms' in line:
                 n_atoms = int(line.split()[5])
             #  if 'Number of lattice vectors' in line:
             #      n_lattice_vectors = int(line.split()[6])
@@ -111,7 +110,7 @@ def parse_MD(infile):
         ('species', 'S2', (n_atoms,)),
         ('coordinates', (float, (n_atoms, 3))),  # n_atoms is known at this point
         ('velocities', (float, (n_atoms, 3))),
-        ('dipole', (float, (3,))),  # n_atoms is known at this point
+        ('dipole', (float, (3,))),
         ('temperature', float),
         ('forces', (float, (n_atoms, 3))),
         # ('energy', float),
@@ -120,38 +119,11 @@ def parse_MD(infile):
 
     data_array = np.array(for_the_array, dtype=data_type)
     data_array.sort()
-    np.save(outputfile, data_array, allow_pickle=True)
+
     return data_array
 
 
 print(f'Parsing {inputfile} file ...', end='', flush=True)
 data_array = parse_MD(inputfile)
-
-
-# Get a list of subdirectories (folders) within the current directory
-# subdirs = [d for d in os.listdir('.') if os.path.isdir(d) and d.startswith(prefix_folder)]
-
-# for i in indices:
-#     path = os.path.join(subdirs[i], inputfile)
-#     if os.path.exists(path):
-#         polarizability_tensor = []
-#
-#         with open(path) as f:
-#             lines = f.readlines()
-#             for i, line in enumerate(lines):
-#                 if 'Polarizability (Bohr^3) :' in line:    # Line when using DFPT_centralised (new module)
-#                     for n in range(3):
-#                         polarizability_tensor.append(lines[i+1+n].split()[0:3])
-#                     polarizability_tensor = np.array(polarizability_tensor, dtype=float)
-#                 # Full Polarizability tensor for crystals
-#                 if 'DFPT for dielectric_constant:' in line:
-#                     for n in range(3):
-#                         polarizability_tensor.append(lines[i+1+n].split()[0:3])
-#                     polarizability_tensor = np.array(polarizability_tensor, dtype=float)
-#             if len(polarizability_tensor) == 0:
-#                 print('File ', f.name, ' contains no polarizability')
-#                 continue
-#             iaims = read(path)
-#             iaims.info['REF_polarizability'] = polarizability_tensor.flatten()
-#             write(outputfile, iaims, append=True)
+np.save(outputfile, data_array, allow_pickle=True)
 print('Done!')
