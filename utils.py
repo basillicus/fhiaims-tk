@@ -13,8 +13,8 @@ def merge_datasets(dipoles, polarizabilities, search_range=5, periodic=False, co
     polarizabilities (numpy.ndarray): Structured array containing polarizability-related data.
     search_range (int): Number of steps before/after to search for coordinate matches.
     periodic (bool): Whether the system is periodic, including lattice and stress if True.
-    convert_dipoles (bool): Convert dipoles from eAng to Debye (as per MACE output dipole)
-    convert_alphas (bool): Convert alphas from Bohr**3 to meA^2/V (as per MACE RMSE polarizability output)
+    convert_dipoles (bool): Convert dipoles from eAng to Debye
+    convert_alphas (bool): Convert alphas from Bohr**3 to Angstrom**3
 
 
     Returns:
@@ -69,7 +69,6 @@ def merge_datasets(dipoles, polarizabilities, search_range=5, periodic=False, co
     ]
     if periodic:
         merged_dtype.extend([('lattice', '<f8', (3, 3)), ('stress', '<f8', (3, 3))])
-
 
     merged_array = np.array(merged_data, dtype=np.dtype(merged_dtype))
     if convert_dipoles:

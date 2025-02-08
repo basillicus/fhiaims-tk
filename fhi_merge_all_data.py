@@ -39,7 +39,7 @@ parser.add_argument('--convert_dipoles', default=False, action='store_true',
                     help='convert dipoles from eAng to Debye')
 
 parser.add_argument('--convert_alphas', default=False, action='store_true',
-                    help='convert polarizabilities from Bohr^3 to me A^2/V ')
+                    help='convert polarizabilities from Bohr^3 to me A^3 ')
 
 # parser.add_argument('-a', '--all', action='store_true', default=True,
 #                     help='all steps will be read/writen')
