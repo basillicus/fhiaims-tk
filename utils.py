@@ -81,8 +81,9 @@ def merge_datasets(dipoles, polarizabilities, search_range=5, periodic=False, co
     return merged_array
 
 
-def write_extxyz_file(merged_dataset, filename="merged_data.extxyz", periodic=False, lattice=None,
-                      force_key="REF_forces", energy_key="REF_energy", dipole_key="REF_dipole",
+# TODO: Include Virial
+def write_extxyz_file(merged_dataset, filename="merged_data.extxyz", periodic=False, lattice=None, add_cell=[],
+                      forces_key="REF_forces", energy_key="REF_energy", dipole_key="REF_dipole",
                       polarizability_key="REF_polarizability", stress_key="REF_stress"):
     """
     Writes the merged dataset to an .extxyz file in ASE format.
@@ -101,23 +102,31 @@ def write_extxyz_file(merged_dataset, filename="merged_data.extxyz", periodic=Fa
         atoms.info[dipole_key] = " ".join(map(str, entry['dipole']))
         atoms.info[polarizability_key] = " ".join(map(str, entry['polarizability'].flatten()))
 
-        if periodic and lattice is not None:
+        # if periodic and lattice is not None:
+        if periodic:
             atoms.set_pbc(True)
             atoms.set_cell(entry['lattice'])
             atoms.info["Lattice"] = " ".join(map(str, entry['lattice'].flatten()))
             atoms.info[stress_key] = " ".join(map(str, entry['stress'].flatten()))
+        elif len(add_cell) == 9:
+            atoms.set_pbc(True)
+            # add_cell = float(add_cell)
+            atoms.set_cell(np.array(add_cell).reshape(3, 3))
+            # atoms.info["Lattice"] = " ".join(map(str, add_cell))
+            # atoms.info[stress_key] = " ".join(map(str, entry['stress'].flatten()))
         else:
             atoms.info["pbc"] = "F F F"
 
         atoms.set_momenta(entry['velocities'])
-        atoms.set_array(force_key, entry['forces'])
+        atoms.set_array(forces_key, entry['forces'])
         atoms_list.append(atoms)
 
     with open(filename, "w") as f:
         write_extxyz(f, atoms_list)
 
 
-def read_extxyz_file(filename="merged_data.extxyz", force_key="REF_forces", energy_key="REF_energy",
+# TODO: Include Virial
+def read_extxyz_file(filename="merged_data.extxyz", forces_key="REF_forces", energy_key="REF_energy",
                      dipole_key="REF_dipole", polarizability_key="REF_polarizability", stress_key="REF_stress"):
     """
     Reads an .extxyz file and returns a structured numpy array.
@@ -151,7 +160,7 @@ def read_extxyz_file(filename="merged_data.extxyz", force_key="REF_forces", ener
         species = np.array(atoms.get_chemical_symbols(), dtype='S2')
         coordinates = atoms.get_positions()
         velocities = atoms.get_momenta() if "momenta" in atoms.arrays else np.zeros((num_atoms, 3))
-        forces = atoms.get_array(force_key) if force_key in atoms.arrays else np.zeros((num_atoms, 3))
+        forces = atoms.get_array(forces_key) if forces_key in atoms.arrays else np.zeros((num_atoms, 3))
         energy = atoms.info.get(energy_key, 0.0)
         dipole = np.array([float(x) for x in atoms.info.get(dipole_key, "0 0 0").split()])
         polarizability = np.array([float(x) for x in atoms.info.get(polarizability_key, "0 0 0 0 0 0 0 0 0").split()]).reshape(3, 3)
