@@ -32,7 +32,8 @@ for frame in data:
     info = {}
     for field in frame.dtype.names:
         if field not in {"species", "coordinates", "lattice_vector"}:  # Skip core fields
-            info[field] = frame[field]
+            # info[field] = frame[field]
+            info[field] = frame[field].flatten()
 
     # Attach additional properties
     atoms.info.update(info)

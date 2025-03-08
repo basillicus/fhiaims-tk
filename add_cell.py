@@ -64,6 +64,7 @@ list_geoms = []
 for geom in geometries:
     geom.set_pbc(True)
     geom.set_cell(np.array(add_cell).reshape(3,3))
+    geom.center()
     list_geoms.append(geom)
 print('Done!')
 

@@ -25,23 +25,44 @@ args = parser.parse_args()
 infile = args.inputfile
 outfile = args.outputfile
 
-pol = np.loadtxt(infile)
-
-# For loop method:
-# pol_33 = []
+# --------------------------------------------
+# Step 1: Load the data
+# pol = np.loadtxt(infile)  # shape (N, 6); each row: [xx, yy, zz, xy, xz, yz]
 #
-# for i in range(len(pol)):
-#     pol_33.append([pol[i][0], pol[i][3], pol[i][4], pol[i][3], pol[i][1], pol[i][5], pol[i][4], pol[i][5], pol[i][2]])
+# # Step 2: Build the 3x3 tensor for each row
+# N = pol.shape[0]
+# pol_tensor = np.empty((N, 3, 3))
 #
-# dt = np.dtype([
-#     ('polarizability', (float, (3, 3))),
-# ])
-# data_array = np.array(pol_33, dtype=dt)
+# # Fill in the symmetric tensor:
+# pol_tensor[:, 0, 0] = pol[:, 0]  # xx
+# pol_tensor[:, 0, 1] = pol[:, 3]  # xy
+# pol_tensor[:, 0, 2] = pol[:, 4]  # xz
+#
+# pol_tensor[:, 1, 0] = pol[:, 3]  # yx = xy
+# pol_tensor[:, 1, 1] = pol[:, 1]  # yy
+# pol_tensor[:, 1, 2] = pol[:, 5]  # yz
+#
+# pol_tensor[:, 2, 0] = pol[:, 4]  # zx = xz
+# pol_tensor[:, 2, 1] = pol[:, 5]  # zy = yz
+# pol_tensor[:, 2, 2] = pol[:, 2]  # zz
+#
+# # Step 3: Create a structured array with a field for the tensor
+# dt = np.dtype([('polarizability', float, (3, 3))])
+# data_array = np.empty(N, dtype=dt)
+# data_array['polarizability'] = pol_tensor
+#
+# # Save the structured array to a file
+# np.save(outfile, data_array)
+# --------------------------------------------
 
-# List comprehension method
-data_array = np.array([(p[0], p[3], p[4], p[3], p[1], p[5], p[4], p[5], p[2])
-                       for p in pol]).astype(np.dtype([
-                           ('polarizability', (float, (3, 3))),
-                       ]))
 
-np.save(outfile, data_array)
+# --------------------------------------------
+# Alternatively, making it more compact
+pol = np.loadtxt(infile)  # Load data
+
+# Reshape data into (N, 3, 3) symmetric tensors
+pol_33 = np.stack([pol[:, [0, 3, 4]], pol[:, [3, 1, 5]], pol[:, [4, 5, 2]]], axis=1)
+
+# Create structured array and save
+np.save(outfile, np.array(list(zip(pol_33)), dtype=[('polarizability', float, (3, 3))]))
+# --------------------------------------------

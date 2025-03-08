@@ -1,8 +1,9 @@
-fhi_basis_set_path = '/home/david/opt/fhi-aims/FHIaims/species_defaults/defaults_2020'
-fhi_aims_outputfile = 'aims.out'
-cp2k_outputfile = 'cp2k.out'
-visualization_outputfile = 'geometries.extxyz'
-information_outputfile = 'info.dat'
-numpy_outputfile = 'info'
-extxyz_outputfile = 'md.extxyz'
-dataset_all_outfile = 'dataset_all.extxyz'
+fhi_basis_set_path = "/home/david/opt/fhi-aims/FHIaims/species_defaults/defaults_2020"
+fhi_aims_outputfile = "aims.out"
+cp2k_outputfile = "cp2k.out"
+visualization_outputfile = "geometries.extxyz"
+information_outputfile = "info.dat"
+numpy_outputfile = "info"
+extxyz_outputfile = "md.extxyz"
+dataset_all_outfile = "dataset_all.extxyz"
+aims_species_directory = "/home/david/opt/fhi-aims/FHIaims-master/species_defaults/defaults_2020/light"

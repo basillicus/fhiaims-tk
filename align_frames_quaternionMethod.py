@@ -6,6 +6,7 @@ from ase import io
 from scipy.spatial.transform import Rotation
 from ase.atoms import Atoms
 
+
 def get_optimal_rotation(P, Q):
     """
     Calculate the optimal rotation to align P to Q using quaternions.
@@ -25,12 +26,34 @@ def get_optimal_rotation(P, Q):
         H += np.outer(p, q)
 
     # Create the key matrix
-    K = np.array([
-        [H[0, 0] + H[1, 1] + H[2, 2], H[1, 2] - H[2, 1], H[2, 0] - H[0, 2], H[0, 1] - H[1, 0]],
-        [H[1, 2] - H[2, 1], H[0, 0] - H[1, 1] - H[2, 2], H[0, 1] + H[1, 0], H[2, 0] + H[0, 2]],
-        [H[2, 0] - H[0, 2], H[0, 1] + H[1, 0], H[1, 1] - H[0, 0] - H[2, 2], H[1, 2] + H[2, 1]],
-        [H[0, 1] - H[1, 0], H[2, 0] + H[0, 2], H[1, 2] + H[2, 1], H[2, 2] - H[0, 0] - H[1, 1]]
-    ])
+    K = np.array(
+        [
+            [
+                H[0, 0] + H[1, 1] + H[2, 2],
+                H[1, 2] - H[2, 1],
+                H[2, 0] - H[0, 2],
+                H[0, 1] - H[1, 0],
+            ],
+            [
+                H[1, 2] - H[2, 1],
+                H[0, 0] - H[1, 1] - H[2, 2],
+                H[0, 1] + H[1, 0],
+                H[2, 0] + H[0, 2],
+            ],
+            [
+                H[2, 0] - H[0, 2],
+                H[0, 1] + H[1, 0],
+                H[1, 1] - H[0, 0] - H[2, 2],
+                H[1, 2] + H[2, 1],
+            ],
+            [
+                H[0, 1] - H[1, 0],
+                H[2, 0] + H[0, 2],
+                H[1, 2] + H[2, 1],
+                H[2, 2] - H[0, 0] - H[1, 1],
+            ],
+        ]
+    )
 
     # Get eigenvector corresponding to maximum eigenvalue
     eigenvalues, eigenvectors = np.linalg.eigh(K)
@@ -45,12 +68,19 @@ def get_optimal_rotation(P, Q):
             return np.eye(3)  # Return identity matrix if no rotation needed
 
         quat_normalized = quat / quat_norm
-        rot = Rotation.from_quat([quat_normalized[1], quat_normalized[2],
-                                  quat_normalized[3], quat_normalized[0]])
+        rot = Rotation.from_quat(
+            [
+                quat_normalized[1],
+                quat_normalized[2],
+                quat_normalized[3],
+                quat_normalized[0],
+            ]
+        )
         return rot.as_matrix()
     except:
         print("Warning: Failed to compute rotation matrix, returning identity")
         return np.eye(3)
+
 
 def remove_rotations(atoms_list, ref=0):
     """
@@ -71,11 +101,19 @@ def remove_rotations(atoms_list, ref=0):
     ref_com = ref_atoms.get_center_of_mass()
     ref_pos = ref_atoms.get_positions() - ref_com
 
+    # ref_forces = ref_atoms.get_forces()
+    # print("Forces:", ref_forces)
+
     aligned_atoms_list = []
 
     for i, atoms in enumerate(atoms_list):
         new_atoms = atoms.copy()
 
+        # print("ATOMS:", atoms)
+        # print("ATOMS LIST [i]:", atoms_list[i])
+        #
+        # print("atoms_list[i]", atoms_list[i].get_forces())
+        # print("new atoms", new_atoms.get_forces())
         # Center at COM
         com = new_atoms.get_center_of_mass()
         pos = new_atoms.get_positions() - com
@@ -88,10 +126,16 @@ def remove_rotations(atoms_list, ref=0):
         new_atoms.set_positions(rotated_pos)
 
         # If momenta exist, rotate them too
-        if new_atoms.has('momenta'):
-            momenta = new_atoms.get_momenta()
+        if new_atoms.has("momenta"):
+            momenta = atoms_list[i].get_momenta()
             rotated_momenta = momenta @ R.T
             new_atoms.set_momenta(rotated_momenta)
+
+        # If forces exist, rotate them too
+        if new_atoms.has("forces"):
+            forces = atoms_list[i].get_forces()
+            rotated_forces = forces @ R.T
+            new_atoms.set_forces(rotated_forces)
 
         if i % 100 == 0:  # Progress indicator
             print(f"Processed frame {i}")
@@ -100,24 +144,35 @@ def remove_rotations(atoms_list, ref=0):
 
     return aligned_atoms_list
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Align an MD trajectory to remove rotations using quaternion-based alignment."
     )
-    parser.add_argument('-i', "--input", default='trajectory.xyz', help="Input trajectory file (format supported by ASE)")
-    parser.add_argument('-o', "--output", default='traj_aligned.xyz', help="Output trajectory file (format supported by ASE)")
+    parser.add_argument(
+        "-i",
+        "--input",
+        default="trajectory.xyz",
+        help="Input trajectory file (format supported by ASE)",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        default="traj_aligned.xyz",
+        help="Output trajectory file (format supported by ASE)",
+    )
     parser.add_argument(
         "--ref",
         type=int,
         default=0,
-        help="Index of reference frame to align to (default: 0)"
+        help="Index of reference frame to align to (default: 0)",
     )
     args = parser.parse_args()
     ref = args.ref
     try:
         # Read trajectory
         print("Reading trajectory...")
-        traj = io.read(args.input, index=':')
+        traj = io.read(args.input, index=":")
 
         if not traj:
             print("Error: No frames read from trajectory")
@@ -139,5 +194,5 @@ def main():
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
