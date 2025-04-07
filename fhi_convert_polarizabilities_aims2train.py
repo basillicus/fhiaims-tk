@@ -29,16 +29,34 @@ parser.add_argument('-p', '--prefix', default='md_sample_',
                     help='Prefix of the folders. [md_sample_]')
 parser.add_argument('-n', '--samples', default=0,
                     help='Total number of geometries to sample. If == 0, all will be included [0]')
+parser.add_argument('-k', '--no_fake_dipole', action="store_false", default=True,
+                    help='Patch to include a fake dipole, when it is not calculated. MACE needs dipole and polarizavility. Use this and  set dipole_weight to 0 when training MACE')
+
+parser.add_argument(
+    "-l", "--list", default=None, help="File with  a list of files to be read]"
+)
 
 args = parser.parse_args()
 inputfile = args.inputfile
 outfile = args.outputfile
 num_samples = int(args.samples)
 prefix_folder = args.prefix
+list_of_files = args.list
+fake_dipole = args.no_fake_dipole
 
-print(f'Reading {inputfile} files in folders with prefix {prefix_folder} ...', end='', flush=True)
-# Get a list of subdirectories (folders) within the current directory
-subdirs = [d for d in os.listdir('.') if os.path.isdir(d) and d.startswith(prefix_folder)]
+if list_of_files:
+    with open(list_of_files, "r") as f:
+        files = f.readlines()
+        print(
+            f"Reading {inputfile} files in path given in {list_of_files} ...",
+            end="",
+            flush=True,
+        )
+    subdirs = [os.path.dirname(file) for file in files]
+else:
+    print(f'Reading {inputfile} files in folders with prefix {prefix_folder} ...', end='', flush=True)
+    # Get a list of subdirectories (folders) within the current directory
+    subdirs = [d for d in os.listdir('.') if os.path.isdir(d) and d.startswith(prefix_folder)]
 print('Done!')
 
 indices = range(len(subdirs))
@@ -70,5 +88,8 @@ for i in indices:
                 continue
             iaims = read(path)
             iaims.info['REF_polarizability'] = polarizability_tensor.flatten()
+            if fake_dipole:
+                iaims.info['REF_dipole'] = np.array([1.0,2.0,3.0])
+
             write(outputfile, iaims, append=True)
 print('Done!')
