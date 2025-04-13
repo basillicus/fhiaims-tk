@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+"""
+Extract training, test (and optionally validation) samples from a dataset.
+
+This script reads all configurations from an input file (either in a NumPy or ASE-readable format)
+and randomly splits them into training, test, and validation sets, writing each to a separate file.
+
+Command-line arguments:
+    - -i, --input: Input file containing all configurations (default "train_all.xyz").
+    - --out_train: Output file for training configurations (default "train.xyz").
+    - --out_test: Output file for test configurations (default "test.xyz").
+    - --out_validation: Output file for validation configurations (default None).
+    - --n_train: Number of training samples to extract (default 10).
+    - --n_test: Number of test samples to extract (default 5).
+    - --n_validation: Number of validation samples (default 0).
+
+"""
+
 
 import argparse
 import numpy as np
@@ -11,21 +28,22 @@ of_train = "train.xyz"
 of_test = "test.xyz"
 if_all = "train_all.xyz"
 
-train_size = 100
-test_size = 25
+train_size = 10
+test_size = 5
 
+# Note on argparse: Ensure that the number of samples is consistent with your dataset size;
 parser = argparse.ArgumentParser(
     prog="fhi_extract_samples.py",
     description="Extract n train samples and m test samples from a dataset",
 )
 
 parser.add_argument(
-    "-i", "--input", default=if_all, help="Input file containing all configurations"
+    "-i", "--input", default=if_all, help="Input file containing all configurations. Could be a structured numpy array or any valid format that ASE can read"
 )
 parser.add_argument(
     "--out_train",
     default=of_train,
-    help="Output file containing training configurations",
+    help="Output file containing training configurations. Format will be guessed from the extension filename",
 )
 parser.add_argument(
     "--out_test", default=of_test, help="Output file containing test configurations"
@@ -78,8 +96,8 @@ else:
         all_structures, train_size=train_size, test_size=test_size
     )
 
-# print("Train size:", len(train))
-# print("Test size:", len(test))
+print("Train size:", len(train))
+print("Test size:", len(test))
 if len(valid) > 0:
     print("Valid size:", len(valid))
 

@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+"""
+Align an MD trajectory by removing rotations via a quaternion-based optimal rotation.
+
+This script reads a trajectory file (supported by ASE),
+selects a reference frame (default first frame), and aligns all frames
+by applying an optimal rotation (computed with quaternions) so that the rotational
+motion is removed. Optionally, momenta and forces are rotated along.
+
+Command-line arguments:
+    - -i, --input: Input trajectory file (default "trajectory.xyz").
+    - -o, --output: Output aligned trajectory file (default "traj_aligned.xyz").
+    - --ref: Index of the reference frame to align to (default 0).
+
+"""
 
 import numpy as np
 import argparse
@@ -146,6 +160,8 @@ def remove_rotations(atoms_list, ref=0):
 
 
 def main():
+
+# Note on argparse: Could add more specifics about accepted file formats.
     parser = argparse.ArgumentParser(
         description="Align an MD trajectory to remove rotations using quaternion-based alignment."
     )

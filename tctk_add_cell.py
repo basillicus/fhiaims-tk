@@ -1,4 +1,20 @@
 #!/usr/bin/env python3
+
+"""
+Add a lattice cell to an extxyz file that originally lacks periodicity.
+
+This script reads an input extxyz file containing atomic geometries,
+adds the specified lattice cell (or sets periodic boundaries if flagged),
+centers each geometry, and writes the updated geometries to an output file.
+
+Command-line arguments:
+    - -i, --inputfile: Input extxyz file (default "train.xyz").
+    - -c, --add_cell: Nine float values specifying a 3x3 lattice (mandatory).
+    - -o, --outputfile: Name of the output file (default from config.extxyz_outputfile).
+    - --pbc: Set the periodic boundary flag.
+    - Other optional keys define the names used for energy, forces, virial, dipole, and polarizability.
+
+"""
 import numpy as np
 
 from ase.io import read
@@ -8,6 +24,7 @@ import argparse
 
 from config import extxyz_outputfile
 
+# Note on argparse: The help messages are mostly clear. However, the description might be adjusted if additional details (like input file format expectations) are needed.
 parser = argparse.ArgumentParser(
     prog='add_cell.py',
     description='Add  a new cell to an .extxyz file which is no periodic. Useful for NEP potentials, that require a lattice')
