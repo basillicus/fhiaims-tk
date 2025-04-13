@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 
-"""Adds/substitutes the required or requested basis set to the control.in file. For help:
+"""Add or substitute a basis set in the control.in file for FHI-AIMS calculations.
 
-    fhi_add_basisSet.py -h
+This script determines the required species (either via argument or by auto-detecting
+from geometry.in), then locates and appends the appropriate basis set information from a specified
+directory (according to the chosen level and tier) into the control.in file.
+
+Command-line arguments:
+    - -p, --path: Path to the basis set files (default from config).
+    - -l, --level: The basis set level (choices include 'light', 'tight', etc.).
+    - -t, --tier: The basis set tier level (currently not implemented fully).
+    - -s, --species: List of species to add (optional; auto-detects if not given).
+    - -f, --force-overwrite: Flag to force overwrite of the existing control.in file.
 """
 
 import argparse
@@ -12,6 +21,7 @@ import sys
 from config import fhi_basis_set_path
 
 # TODO: Work out the tier
+    # Note on argparse: Some options (like force-overwrite and tier) are either not fully implemented or might require better checks.
 
 parser = argparse.ArgumentParser(
     prog='fhi_add_basisSet',

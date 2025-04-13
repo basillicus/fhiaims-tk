@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
+"""
+Convert FHI-AIMS output (aims.out) data into a training dataset in XYZ format.
 
+The script reads AIMS output files from folders (with a given prefix) or from a user-provided list of files,
+extracts the relevant geometric (and possibly force) data, and aggregates them into a single train.xyz file.
+
+Command-line arguments:
+    - -i, --inputfile: AIMS output file name (default "aims.out").
+    - -o, --outputfile: Output training file in XYZ format (default "train.xyz").
+    - -p, --prefix: The prefix identifying the subdirectories to search (default "md_sample_").
+    - -l, --list: Optional file containing a list of files to be read.
+    - -n, --samples: Number of sample geometries to include (0 means include all).
+
+"""
 import os
 import sys
 
@@ -35,7 +48,7 @@ parser.add_argument(
     "-p", "--prefix", default="md_sample_", help="Prefix of the folders. [md_sample_]"
 )
 parser.add_argument(
-    "-l", "--list", default=None, help="File with  a list of files to be read]"
+    "-l", "--list", default=None, help="File with  a list of files to be read"
 )
 parser.add_argument(
     "-n",

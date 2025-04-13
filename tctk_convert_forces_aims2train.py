@@ -9,12 +9,23 @@ import numpy as np
 
 '''
 Reads the geometry and forces from an aims.out files in the prefix folders, or folders in the current dir, and generates a train.xyz file that contains the polarizabilities
+
+Convert FHI-AIMS output (aims.out) into a training dataset including force (and polarizability) data.
+
+This script gathers geometries (with forces) from AIMS output files found in subdirectories.
+It supports optionally sampling only a subset of the available data and patches a fake dipole if desired.
+
+Command-line arguments:
+    - -i, --inputfile: Input AIMS output file (default "aims.out").
+    - -o, --outputfile: Output training file (default "train.xyz").
+    - -p, --prefix: Prefix for the subdirectories to process.
+    - -n, --samples: Number of samples to include (default 0 to include all).
 '''
 
 # Read the arguments
 parser = argparse.ArgumentParser(
-    prog='fhi_convert_polarizabilities_aims2train.py',
-    description='Reads polarizabilities from aims.out files in the prefix folders and generates a train.xyz file',
+    prog='fhi_convert_forces_aims2train.py',
+    description='Reads forces from aims.out files in the prefix folders and generates a train.xyz file',
 )
 
 inputfile = 'aims.out'

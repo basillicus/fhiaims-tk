@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
-
 """
-Convert geometry files from and to fhi-aims format
+Convert geometry files between CP2K and FHI-AIMS formats.
+
+This script reads geometry and cell information from CP2K-style input files (coordinates.inc and cell.inc)
+and writes out a geometry file in the FHI-AIMS format. The output file format may be inferred from its
+extension, supporting both standard and AIMS-specific formats.
+
+Command-line arguments:
+    - -i, --inputfile: Input geometry file (default "coordinates.inc").
+    - -c, --inputfile: Input cell file (default "cell.inc").  <-- Note: there’s a naming conflict here!
+    - -o, --outputfile: Output filename; if not provided, a default from config is used.
+    - -f, --format: Format specifier for the output file.
 """
 from ase.io import read, write
 from ase.io.aims import read_aims, write_aims
@@ -23,6 +32,8 @@ def read_cp2k(infile, cellfile):
     for i in a:
         atoms.append(i[1:4])
 
+# Note on argparse: The cell file argument re-uses "--inputfile" with -c. This is a problem;
+# each argument should have a unique destination. Consider renaming one of them.
 parser = argparse.ArgumentParser(
     prog='fhi_convert_cp2k2fhi.py',
     description='Interconvert geometry files',
