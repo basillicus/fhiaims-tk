@@ -162,3 +162,4 @@ cython_debug/
 # Custom files
 config.py
 TODO
+.llms/
