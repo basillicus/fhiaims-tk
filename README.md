@@ -1,12 +1,12 @@
 # Traincraft Toolkit
 
-Set of independent python scripts to facilitate simple but frequent tasks you may need to perform while working with electronic structure calculation files
-I've just started working with FHI-AIMS and probably this tools already exist somewhere else, or you do it in a different and probably more efficient way.
+Set of independent python scripts to facilitate simple but frequent tasks you may need to perform while working with electronic structure calculation files.
 
-At the moment there are no many tools, I guess I will keep adding them as long as I keep needing them and can not find them.
+These little scripts perform operations that may be needed when manipulating molecular geometries, inverconverting formats or handling keywords/units between different codes. 
+
+This is a complement to the code Traincraft, for the generation of datasets for traininf Machine Learning Interatomic Potentials.
 
 It uses ASE as external dependency, which depends on numpy, and some scripts need scikit-learn
-
 
 ## Configure
 
@@ -22,9 +22,7 @@ You may need also tqdm if you use some of the scripts that use it. Some files ar
     (compchem)$ conda install tqdm
 
 
-### My own set up  
-
-I do the following because I believe it is simple, and does not mess with your path until you need it.
+### How to use it
 
 I create an alias that adds to $PATH the path where the scripts are stored.
 
@@ -41,3 +39,5 @@ All scripts are executable and start with "tctk_", so now you can execute each i
 
     tctk_<name-of-the-script>.py -h
 
+# Acknowledgment
+This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 847635, under the project UNA Europa, an alliance of universities FOR the emergence of talent and the development of research CAREERs (UNA4CAREER)
