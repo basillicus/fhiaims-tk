@@ -1,4 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""
+Remove the angular momentum (rotational motion) from an MD trajectory.
+
+This script ensures that each frame’s rotational (angular) contribution is removed
+by computing the inertia tensor, total angular momentum, and the corresponding
+angular velocity. It then subtracts the rotational velocity from the atomic velocities.
+
+Command-line interface:
+    - Reads a trajectory from "trajectory.xyz" and writes the corrected trajectory to "trajectory_norot.xyz".
+
+"""
 
 import numpy as np
 from ase import io
@@ -92,6 +103,7 @@ def remove_angular_momentum(atoms_list, dt=1.0):
     return new_atoms_list
 
 def main():
+# Note on argparse: This script does not use argparse for CLI input – consider adding one 
     # Read trajectory
     traj = io.read('trajectory.xyz', index=':')
 

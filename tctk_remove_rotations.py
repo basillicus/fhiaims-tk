@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+"""
+Remove rotational motion from an MD trajectory while also handling forces.
+
+This script reads a trajectory file (supported by ASE), computes the optimal
+rotation for each frame using quaternion minimization (from a common utility),
+and rotates forces (if available) along with positions, momenta, etc.
+It also offers a utility function to write out a custom XYZ file that includes forces.
+
+There is no explicit command-line interface here apart from providing input/output filenames inside the code.
+"""
+
 
 import numpy as np
 from ase import io
@@ -268,6 +279,8 @@ def main():
         print(f"An error occurred: {str(e)}")
         import traceback
 
+
+# Note on argparse: This script does not use argparse for CLI input – consider adding one
         traceback.print_exc()
 
 
